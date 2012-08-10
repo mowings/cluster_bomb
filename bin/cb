@@ -1,0 +1,3 @@
+#!/usr/bin/ruby
+# Remove me if gem
+load 'cluster_bomb/cli.rb'
