@@ -141,12 +141,12 @@ module ClusterBomb
     def switch_user(user)
       if @configuration.has_ssh_options? user
         ssh_options = @configuration.ssh_options(user)
-        @username = user
-        @cluster.credentials(@username, ssh_options)
-        @cluster.disconnect!
       else
-        raise "No credentials for user #{username}"
+        ssh_options={} # Use ssh agent or config file
       end
+      @username = ssh_options[:user] || user
+      @cluster.credentials(@username, ssh_options)
+      @cluster.disconnect!
     end
     
     def exec(name, options={}) 
