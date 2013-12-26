@@ -2,6 +2,7 @@ require 'net/ssh'
 require 'net/scp'
 require 'net/sftp'
 require 'cluster_bomb/logging'
+require 'shellwords'
 
 # Represents a cluster of hosts over which to operate
 module ClusterBomb
@@ -109,12 +110,14 @@ module ClusterBomb
         elsif !host.connect_failed
           Thread.new {
             begin
-              #puts "Connecting #{host.name}"          
-              c = Net::SSH.start(host.name, @user_name, @ssh_options)
+              #puts "Connecting #{host.name}"
+              name, port = host.name.split(':')
+              port ||= "22"
+              c = Net::SSH.start(name, @user_name, @ssh_options.merge({:port=>port.to_i}))
               @connection_cache[host.name] = c
               @connection_mutex.synchronize { @connections << {:connection=>c, :host=>host} }
               host.connected=true
-              #puts "Connected #{host.name}"          
+              #puts "Connected #{host.name}"
             rescue Exception => e
               host.connect_failed = true
               host.connected=false
@@ -183,7 +186,7 @@ module ClusterBomb
        
     # Build sudo-fied command. Really only works for bash afaik   
     def mksudo(command)
-      "sudo sh -c '(#{command})'"
+      "sudo /bin/bash -c #{Shellwords.escape(command)}"
     end 
     
     def run(command, options={}, &task)

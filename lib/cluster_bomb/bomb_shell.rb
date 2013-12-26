@@ -1,4 +1,4 @@
-require 'readline'
+require 'rb-readline'
 require 'cluster_bomb/history.rb'
 require 'cluster_bomb/logging.rb'
 require 'cluster_bomb/dispatcher.rb'
