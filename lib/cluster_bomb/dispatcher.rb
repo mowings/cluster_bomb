@@ -19,9 +19,9 @@ module ClusterBomb
     COMMAND_AUTOCOMPLETE = COMMANDS.collect{|c|c[:name]} + ['with','use']
     def init_autocomplete
       Readline.completion_proc=proc {|s| self.dispatcher_completion_proc(s)}
-      Readline.completer_word_break_characters = 7.chr  
+      Readline.completer_word_break_characters = 7.chr
       Readline.completion_case_fold = true
-      Readline.completion_append_character = ''      
+      Readline.completion_append_character = ''
     end
     def process_cmd(line)
        # cmd = cmd.strip.downcase
@@ -44,10 +44,11 @@ module ClusterBomb
          puts "Available commands:"
          COMMANDS.each do |cr|
            puts "    #{cr[:name]} - #{cr[:description]}"
-         end         
+         end
        end
        return true
     end
+
     def dispatcher_completion_proc(s)      
       # No line buffer for mac, so no way to get command context
       # Very lame with libedit. Will not return candidates, and 
@@ -61,7 +62,7 @@ module ClusterBomb
         tokens << ''
       end
       # Initial command only
-      if tokens.length <= 1 && tokens[0] != '\\'
+      if tokens.length  <= 1 && tokens[0] != '\\'
         ret = COMMAND_AUTOCOMPLETE.grep(/^#{s}/)
       else
         if tokens[0]=~/:?with.*/
@@ -78,16 +79,16 @@ module ClusterBomb
           ret = shawtie_names.grep(/#{tokens[0][1..-1]}/)
           ret = ret.collect {|r|"\\#{r}"}
         end
-        
-      end      
+
+      end
       ret
     end
-    
+
     def dir_completion_proc(tokens)
       choices=dir_list(tokens[1])
       secondary_completion_proc(tokens,choices)
     end
-    
+
     def dir_list(token)
       m = token.match(/(.*\/).*$/)
       if m && m[1]
@@ -97,10 +98,10 @@ module ClusterBomb
       end      
       ret.collect {|p| (File.directory? p) ? "#{p}/" : "#{p}"}
     end
-    
+
     def secondary_completion_proc(tokens, choices)
       if tokens[1]==''
-        choices
+        choices.collect {|c| "#{tokens[0]} #{c}"}
       else
         tokens[1] = tokens[1].gsub(/\./,'\.')
         choices.grep(/^#{tokens[1]}/).collect {|c| "#{tokens[0]} #{c}"}
